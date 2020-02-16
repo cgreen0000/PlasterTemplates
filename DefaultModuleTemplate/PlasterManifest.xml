@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.1"
+  templateType="Item" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>MyDefaultPlasterTemplate</name>
+    <id>6fd7c32c-c557-4561-a3f1-31a39dabd494</id>
+    <version>0.0.1</version>
+    <title>My Default Plaster Template</title>
+    <description></description>
+    <author>Chris Green</author>
+    <tags></tags>
+  </metadata>
+  <parameters>
+    <parameter name="ModuleName" type="text" prompt="Name of your module" />
+    <parameter name="ModuleDesc" type="text" prompt="Brief description on this module" />
+    <parameter name="ModuleVersion" type="text" prompt="Version number"  default='1.0.0.0' />
+    <parameter name="ModuleAuthor" type="user-fullname" prompt="Author"/>
+  </parameters>
+  <content>
+    <newModuleManifest destination='${PLASTER_PARAM_ModuleName}\${PLASTER_PARAM_ModuleName}.psd1' 
+      moduleVersion='$PLASTER_PARAM_ModuleVersion' 
+      rootModule='${PLASTER_PARAM_ModuleName}.psm1' 
+      author='$PLASTER_PARAM_ModuleAuthor'
+      description='$PLASTER_PARAM_ModuleDesc'/>
+    <file source='ModuleName.psm1' destination='${PLASTER_PARAM_ModuleName}\${PLASTER_PARAM_ModuleName}.psm1'/>
+    <message> Creating you folders for module: $PLASTER_PARAM_ModuleName </message>
+    <file source='' destination='${PLASTER_PARAM_ModuleName}\Public'/>
+    <file source='' destination='${PLASTER_PARAM_ModuleName}\Private'/>
+    <file source='' destination='${PLASTER_PARAM_ModuleName}\Classes'/>
+    <file source='' destination='${PLASTER_PARAM_ModuleName}\Tests'/>
+    <message> Creating default tests. </message>
+    <templateFile source='ModuleName.tests.ps1' destination='${PLASTER_PARAM_ModuleName}\Tests\${PLASTER_PARAM_ModuleName}.tests.ps1'/>
+    <message> Creating build file. </message>
+    <templateFile source='ModuleName.build.ps1' destination='${PLASTER_PARAM_ModuleName}.build.ps1'/>
+  </content>
+</plasterManifest>
