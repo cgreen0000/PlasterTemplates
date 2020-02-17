@@ -18,6 +18,21 @@ task Analyze {
     }
 }
 
+task Archive {
+    $ArtifactsArchive = "$BuildRoot\Artifacts\<%=$PLASTER_PARAM_ModuleName%>.zip"
+    $Module = "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>"
+
+    Compress-Archive -Path $Module -DestinationPath $ArtifactsArchive
+}
+
+task Clean {
+    if (Test-Path -Path "$BuildRoot\Artifacts") {
+        Remove-Item "$BuildRoot\Artifacts" -Recurse -Force
+    }
+
+    New-Item -ItemType Directory -Path "$BuildRoot\Artifacts" -Force
+}
+
 task InstallDependencies {
     if (!(Get-Module -Name Pester -ListAvailable)) { # Required for Test task.
         Install-Module -Name Pester -Scope CurrentUser
