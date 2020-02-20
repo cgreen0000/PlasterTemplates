@@ -1,7 +1,8 @@
 # Build tasks for Invoke-Build.
 
-task InstallDependencies
+task . InstallDependencies
 
+# Synopsis: Run PSScriptAnalyzer.
 task Analyze {
     $scriptAnalyzerParameters = @{
         Path = "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>"
@@ -18,6 +19,7 @@ task Analyze {
     }
 }
 
+# Synopsis: Package the module as a zip file.
 task Archive {
     $ArtifactsArchive = "$BuildRoot\Artifacts\<%=$PLASTER_PARAM_ModuleName%>.zip"
     $StagedModule = "$BuildRoot\Staging\<%=$PLASTER_PARAM_ModuleName%>"
@@ -25,6 +27,7 @@ task Archive {
     Compress-Archive -Path $StagedModule -DestinationPath $ArtifactsArchive -Force
 }
 
+# Synopsis: Remove the Artifacts and Staging directories.
 task Clean {
     if (Test-Path -Path "$BuildRoot\Artifacts") {
         Remove-Item "$BuildRoot\Artifacts" -Recurse -Force
@@ -38,11 +41,13 @@ task Clean {
     New-Item -ItemType Directory -Path "$BuildRoot\Staging" -Force
 }
 
+# Synopsis: Copy artifact to a network share.
 task Deploy {
     $SMBShare = "\\placeholder\share"
     Copy-Item -Path "$BuildRoot\Artifacts\<%=$PLASTER_PARAM_ModuleName%>.zip" -Destination $SMBShare -Force
 }
 
+# Synopsis: Install modules required for testing.
 task InstallDependencies {
     if (!(Get-Module -Name Pester -ListAvailable)) { # Required for Test task.
         Install-Module -Name Pester -Scope CurrentUser
@@ -53,17 +58,20 @@ task InstallDependencies {
     }
 }
 
+# Synopsis: Sign the module scripts with the current user's code signing certificate.
 task Sign {
     $StagingFolder = "$BuildRoot\Staging\"
     $SigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert
     Get-ChildItem -Path "$BuildRoot\$StagingFolder\*.ps1" -Recurse | Set-AuthenticodeSignature -Certificate $SigningCert
 }
 
+# Synopsis: Copy the module to the staging folder for signing.
 task Stage {
     $StagingFolder = "$BuildRoot\Staging\"
     Copy-Item -Path "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\" -Destination $StagingFolder -Recurse -Force
 }
 
+# Synopsis: Run unit tests.
 task Test {
     $pesterParameters = @{
         Strict = $true
@@ -77,6 +85,7 @@ task Test {
     Assert ($pesterResults.FailedCount -eq 0) ("Failed {0} tests." -f $pesterResults.FailedCount)
 }
 
+# Synopsis: Set module version to the next major version.
 task UpdateVersionMajor {
     $ManifestPath = "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\<%=$PLASTER_PARAM_ModuleName%>.psd1"
 
@@ -85,10 +94,11 @@ task UpdateVersionMajor {
     [version]$CurrentManifestVersion = $ManifestData.ModuleVersion
 
     # Construction a new version number and update the manifest.
-    [version]$NewManifestVersion = "{0}.{1}.{2}.{3}" -f ($CurrentManifestVersion.Major + 1), $CurrentManifestVersion.Minor, $CurrentManifestVersion.Build, $CurrentManifestVersion.Revision
+    [version]$NewManifestVersion = "{0}.{1}.{2}.{3}" -f ($CurrentManifestVersion.Major + 1), 0, 0, 0
     Update-ModuleManifest -Path $ManifestPath -ModuleVersion $NewManifestVersion
 }
 
+# Synopsis: Set module version to the next minor version.
 task UpdateVersionMinor {
     $ManifestPath = "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\<%=$PLASTER_PARAM_ModuleName%>.psd1"
 
@@ -97,10 +107,11 @@ task UpdateVersionMinor {
     [version]$CurrentManifestVersion = $ManifestData.ModuleVersion
 
     # Construction a new version number and update the manifest.
-    [version]$NewManifestVersion = "{0}.{1}.{2}.{3}" -f $CurrentManifestVersion.Major, ($CurrentManifestVersion.Minor + 1), $CurrentManifestVersion.Build, $CurrentManifestVersion.Revision
+    [version]$NewManifestVersion = "{0}.{1}.{2}.{3}" -f $CurrentManifestVersion.Major, ($CurrentManifestVersion.Minor + 1), 0, 0
     Update-ModuleManifest -Path $ManifestPath -ModuleVersion $NewManifestVersion
 }
 
+# Synopsis: Set module version to the next build verison.
 task UpdateVersionBuild {
     $ManifestPath = "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\<%=$PLASTER_PARAM_ModuleName%>.psd1"
 
@@ -109,10 +120,11 @@ task UpdateVersionBuild {
     [version]$CurrentManifestVersion = $ManifestData.ModuleVersion
 
     # Construction a new version number and update the manifest.
-    [version]$NewManifestVersion = "{0}.{1}.{2}.{3}" -f $CurrentManifestVersion.Major, $CurrentManifestVersion.Minor, ($CurrentManifestVersion.Build + 1), $CurrentManifestVersion.Revision
+    [version]$NewManifestVersion = "{0}.{1}.{2}.{3}" -f $CurrentManifestVersion.Major, $CurrentManifestVersion.Minor, ($CurrentManifestVersion.Build + 1), 0
     Update-ModuleManifest -Path $ManifestPath -ModuleVersion $NewManifestVersion
 }
 
+# Synopsis: Set module version to the next revision.
 task UpdateVersionRevision {
     $ManifestPath = "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\<%=$PLASTER_PARAM_ModuleName%>.psd1"
 
