@@ -20,9 +20,9 @@ task Analyze {
 
 task Archive {
     $ArtifactsArchive = "$BuildRoot\Artifacts\<%=$PLASTER_PARAM_ModuleName%>.zip"
-    $Module = "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>"
+    $StagedModule = "$BuildRoot\Staging\<%=$PLASTER_PARAM_ModuleName%>"
 
-    Compress-Archive -Path $Module -DestinationPath $ArtifactsArchive
+    Compress-Archive -Path $StagedModule -DestinationPath $ArtifactsArchive -Force
 }
 
 task Clean {
@@ -30,7 +30,17 @@ task Clean {
         Remove-Item "$BuildRoot\Artifacts" -Recurse -Force
     }
 
+    if (Test-Path -Path "$BuildRoot\Staging") {
+        Remove-Item "$BuildRoot\Staging" -Recurse -Force
+    }
+
     New-Item -ItemType Directory -Path "$BuildRoot\Artifacts" -Force
+    New-Item -ItemType Directory -Path "$BuildRoot\Staging" -Force
+}
+
+task Deploy {
+    $SMBShare = "\\placeholder\share"
+    Copy-Item -Path "$BuildRoot\Artifacts\<%=$PLASTER_PARAM_ModuleName%>.zip" -Destination $SMBShare -Force
 }
 
 task InstallDependencies {
@@ -41,6 +51,17 @@ task InstallDependencies {
     if (!(Get-Module -Name PSScriptAnalyzer -ListAvailable)) { # Required for Analyze task.
         Install-Module -Name PSScriptAnalyzer -Scope CurrentUser
     }
+}
+
+task Sign {
+    $StagingFolder = "$BuildRoot\Staging\"
+    $SigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert
+    Get-ChildItem -Path "$BuildRoot\$StagingFolder\*.ps1" -Recurse | Set-AuthenticodeSignature -Certificate $SigningCert
+}
+
+task Stage {
+    $StagingFolder = "$BuildRoot\Staging\"
+    Copy-Item -Path "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\" -Destination $StagingFolder -Recurse -Force
 }
 
 task Test {
