@@ -12,10 +12,11 @@
     <tags></tags>
   </metadata>
   <parameters>
-    <parameter name="ModuleName" type="text" prompt="Name of your module" />
-    <parameter name="ModuleDesc" type="text" prompt="Brief description on this module" />
-    <parameter name="ModuleVersion" type="text" prompt="Version number"  default='1.0.0.0' />
-    <parameter name="ModuleAuthor" type="user-fullname" prompt="Author"/>
+    <parameter name="ModuleName" type="text" prompt="Module name" />
+    <parameter name="ModuleDesc" type="text" prompt="Module description" />
+    <parameter name="ModuleVersion" type="text" prompt="Module version number"  default='1.0.0.0' />
+    <parameter name="ModuleAuthor" type="user-fullname" prompt="Module author"/>
+    <parameter name="ModuleDeploySMB" type="text" prompt="UNC path to the network deployment share" />
   </parameters>
   <content>
     <newModuleManifest destination='${PLASTER_PARAM_ModuleName}\${PLASTER_PARAM_ModuleName}.psd1' 
@@ -29,9 +30,9 @@
     <file source='' destination='${PLASTER_PARAM_ModuleName}\Public'/>
     <file source='' destination='${PLASTER_PARAM_ModuleName}\Private'/>
     <file source='' destination='${PLASTER_PARAM_ModuleName}\Classes'/>
-    <file source='' destination='${PLASTER_PARAM_ModuleName}\Tests'/>
+    <file source='' destination='Tests'/>
     <message> Creating default tests. </message>
-    <templateFile source='ModuleName.tests.ps1' destination='${PLASTER_PARAM_ModuleName}\Tests\${PLASTER_PARAM_ModuleName}.tests.ps1'/>
+    <templateFile source='ModuleName.tests.ps1' destination='Tests\${PLASTER_PARAM_ModuleName}.tests.ps1'/>
     <message> Creating build file. </message>
     <templateFile source='ModuleName.build.ps1' destination='${PLASTER_PARAM_ModuleName}.build.ps1'/>
   </content>

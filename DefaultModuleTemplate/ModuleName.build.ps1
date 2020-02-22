@@ -43,8 +43,7 @@ task Clean {
 
 # Synopsis: Copy artifact to a network share.
 task Deploy {
-    $SMBShare = "\\placeholder\share"
-    Copy-Item -Path "$BuildRoot\Artifacts\<%=$PLASTER_PARAM_ModuleName%>.zip" -Destination $SMBShare -Force
+    Copy-Item -Path "$BuildRoot\Artifacts\<%=$PLASTER_PARAM_ModuleName%>.zip" -Destination "<%=$PLASTER_PARAM_ModuleDeploySMB%>" -Force
 }
 
 # Synopsis: Install modules required for testing.
@@ -62,7 +61,7 @@ task InstallDependencies {
 task Sign {
     $StagingFolder = "$BuildRoot\Staging\"
     $SigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert
-    Get-ChildItem -Path "$BuildRoot\$StagingFolder\*.ps1" -Recurse | Set-AuthenticodeSignature -Certificate $SigningCert
+    Get-ChildItem -Path "$StagingFolder\*.ps1" -Recurse | Set-AuthenticodeSignature -Certificate $SigningCert
 }
 
 # Synopsis: Copy the module to the staging folder for signing.
