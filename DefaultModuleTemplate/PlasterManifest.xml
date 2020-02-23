@@ -16,14 +16,11 @@
     <parameter name="ModuleDesc" type="text" prompt="Module description" />
     <parameter name="ModuleVersion" type="text" prompt="Module version number"  default='1.0.0.0' />
     <parameter name="ModuleAuthor" type="user-fullname" prompt="Module author"/>
+    <parameter name="ModuleCompany" type="text" prompt="Module company name" default="Unknown" />
     <parameter name="ModuleDeploySMB" type="text" prompt="UNC path to the network deployment share" />
   </parameters>
   <content>
-    <newModuleManifest destination='${PLASTER_PARAM_ModuleName}\${PLASTER_PARAM_ModuleName}.psd1' 
-      moduleVersion='$PLASTER_PARAM_ModuleVersion' 
-      rootModule='${PLASTER_PARAM_ModuleName}.psm1' 
-      author='$PLASTER_PARAM_ModuleAuthor'
-      description='$PLASTER_PARAM_ModuleDesc'/>
+    <templateFile source='ModuleName.psd1' destination='${PLASTER_PARAM_ModuleName}\${PLASTER_PARAM_ModuleName}.psd1'/>
     <file source='ModuleName.psm1' destination='${PLASTER_PARAM_ModuleName}\${PLASTER_PARAM_ModuleName}.psm1'/>
     <message> Creating files and folders for module: $PLASTER_PARAM_ModuleName </message>
     <file source='.gitignore' destination=''/>
