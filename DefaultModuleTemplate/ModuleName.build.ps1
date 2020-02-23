@@ -1,6 +1,10 @@
 # Build tasks for Invoke-Build.
 
-task . InstallDependencies
+# Synopsis: Default task. Runs tests, updates build number, signs and build an artifact.
+task . InstallDependencies,Analyze,Test,UpdateVersionBuild,Clean,Stage,Sign,Archive
+
+# Synopsis: Default task. Runs tests, updates build number, signs and build an artifact.
+task NewBuildVerison InstallDependencies,Analyze,Test,UpdateVersionBuild,Clean,Stage,Sign,Archive
 
 # Synopsis: Run PSScriptAnalyzer.
 task Analyze {

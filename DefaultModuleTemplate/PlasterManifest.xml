@@ -30,7 +30,8 @@
     <file source='' destination='Tests'/>
     <message> Creating default tests. </message>
     <templateFile source='ModuleName.tests.ps1' destination='Tests\${PLASTER_PARAM_ModuleName}.tests.ps1'/>
-    <message> Creating build file. </message>
+    <message> Creating build files. </message>
+    <file source='build.ps1' destination='build.ps1'/>
     <templateFile source='ModuleName.build.ps1' destination='${PLASTER_PARAM_ModuleName}.build.ps1'/>
   </content>
 </plasterManifest>
