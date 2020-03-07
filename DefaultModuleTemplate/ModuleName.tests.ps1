@@ -10,7 +10,7 @@ Describe "Public commands have Pester tests." {
     $commands = Get-Command -Module "<%=$PLASTER_PARAM_ModuleName%>"
 
     foreach ($command in $commands) {
-        $file = Get-ChildItem -Path "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\Tests" -Include "$command.Tests.ps1" -Recurse
+        $file = Get-ChildItem -Path "$BuildRoot\Tests" -Include "$command.Tests.ps1" -Recurse
 
         It "Should have a Pester test for [$command]" {
             $file.FullName | Should -Not -BeNullOrEmpty

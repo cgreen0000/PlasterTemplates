@@ -1,10 +1,10 @@
 # Build tasks for Invoke-Build.
 
 # Synopsis: Default task. Runs tests, updates build number, signs and build an artifact.
-task . InstallDependencies,Analyze,Test,UpdateVersionBuild,Clean,Stage,Sign,Archive
+task . Prerequisites,Analyze,Test,UpdateVersionBuild,Clean,Stage,Sign,Archive
 
 # Synopsis: Default task. Runs tests, updates build number, signs and build an artifact.
-task NewBuildVerison InstallDependencies,Analyze,Test,UpdateVersionBuild,Clean,Stage,Sign,Archive
+task NewBuildVerison Prerequisites,Analyze,Test,UpdateVersionBuild,Clean,Stage,Sign,Archive
 
 # Synopsis: Run PSScriptAnalyzer.
 task Analyze {
@@ -51,7 +51,7 @@ task Deploy {
 }
 
 # Synopsis: Install modules required for testing.
-task InstallDependencies {
+task Prerequisites {
     if (!(Get-Module -Name Pester -ListAvailable)) { # Required for Test task.
         Install-Module -Name Pester -Scope CurrentUser
     }
@@ -59,6 +59,11 @@ task InstallDependencies {
     if (!(Get-Module -Name PSScriptAnalyzer -ListAvailable)) { # Required for Analyze task.
         Install-Module -Name PSScriptAnalyzer -Scope CurrentUser
     }
+
+    if (Get-Module -Name "<%=$PLASTER_PARAM_ModuleName%>") {
+        Remove-Module -Name "<%=$PLASTER_PARAM_ModuleName%>"
+    }
+    Import-Module "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\<%=$PLASTER_PARAM_ModuleName%>.psd1"
 }
 
 # Synopsis: Sign the module scripts with the current user's code signing certificate.
@@ -76,16 +81,17 @@ task Stage {
 
 # Synopsis: Run unit tests.
 task Test {
-    $pesterParameters = @{
+    $PesterParameters = @{
         Strict = $true
         PassThru = $true
         Verbose = $false
         EnableExit = $false
+        CodeCoverage = (Get-ChildItem -Path "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\*.ps1" -Recurse).FullName
     }
 
-    $pesterResults = Invoke-Pester @pesterParameters
+    $PesterResults = Invoke-Pester @PesterParameters
 
-    Assert ($pesterResults.FailedCount -eq 0) ("Failed {0} tests." -f $pesterResults.FailedCount)
+    Assert ($PesterResults.FailedCount -eq 0) ("Failed {0} tests." -f $PesterResults.FailedCount)
 }
 
 # Synopsis: Set module version to the next major version.
