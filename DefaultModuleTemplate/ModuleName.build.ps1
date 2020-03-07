@@ -1,10 +1,10 @@
 # Build tasks for Invoke-Build.
 
 # Synopsis: Default task. Runs tests, updates build number, signs and build an artifact.
-task . Prerequisites,Analyze,Test,UpdateVersionBuild,Clean,Stage,Sign,Archive
+task . Prerequisites,Clean,Analyze,Test,UpdateVersionBuild,Stage,Sign,Archive
 
 # Synopsis: Default task. Runs tests, updates build number, signs and build an artifact.
-task NewBuildVerison Prerequisites,Analyze,Test,UpdateVersionBuild,Clean,Stage,Sign,Archive
+task NewBuildVerison Prerequisites,Clean,Analyze,Test,UpdateVersionBuild,Stage,Sign,Archive
 
 # Synopsis: Run PSScriptAnalyzer.
 task Analyze {
@@ -87,9 +87,13 @@ task Test {
         Verbose = $false
         EnableExit = $false
         CodeCoverage = (Get-ChildItem -Path "$BuildRoot\<%=$PLASTER_PARAM_ModuleName%>\*.ps1" -Recurse).FullName
+        OutputFile = "$BuildRoot\Artifacts\PesterResults.xml"
+        OutputFormat = "NUnitXml"
     }
 
     $PesterResults = Invoke-Pester @PesterParameters
+
+    $PesterResults | ConvertTo-Json -Depth 5 | Set-Content -Path "$BuildRoot\Artifacts\PesterResults.json"
 
     Assert ($PesterResults.FailedCount -eq 0) ("Failed {0} tests." -f $PesterResults.FailedCount)
 }
